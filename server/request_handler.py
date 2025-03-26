@@ -1,27 +1,23 @@
-from .response_builder import ResponseBuilder
+
 
 class RequestHandler:
-    def __init__(self, conn, session_manager, router):
-        self.conn = conn
+    def __init__(self, request, session_manager, router):
+        self.request = request
         self.session_manager = session_manager
         self.router = router
 
     def handle_request(self):
-        request = self.conn.recv(1024).decode("utf-8", errors="replace")
+        #request = self.conn.recv(1024).decode("utf-8", errors="replace")
         #print("Received request: ")
-        print(request)
-        if not request:
-            return 
+        print(self.request)
         #print("Recieved request:\n", request)
-        parsed_request = self._parse_request(request)
+        parsed_request = self._parse_request(self.request)
         route = parsed_request.get("Request-target", None)
         
         handler = self.router.get_handler(route)
-        if handler: 
-            handler_instance = handler(self.conn, self.session_manager, parsed_request)
-            handler_instance.handle()
-        else:
-            ResponseBuilder().send_response(self.conn, 404, content="Not found")
+        
+        handler_instance = handler(self.session_manager, parsed_request)
+        return handler_instance.handle()
 
     def _parse_username_password(self, data):
         pairs = data.split("&")

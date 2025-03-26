@@ -21,11 +21,15 @@ class HTTPServer:
             conn, addr = self.server_socket.accept()
             print(f"Connected by {addr}")
 
-            handler = RequestHandler(conn, self.session_manager, self.router)
+            print(f"Recieving request...")
+            request = conn.recv(1024).decode("utf-8", errors="replace")
+            
+            handler = RequestHandler(request, self.session_manager, self.router)
             
             print("Handling request...")
-            handler.handle_request()   
+            response = handler.handle_request()   
             print("Request handled!")
+            conn.sendall(response)
 
             conn.close()
             print("Connection closed.")
