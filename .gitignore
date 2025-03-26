@@ -1,0 +1,29 @@
+# Virtual environment
+env/
+venv/
+
+# Cache and compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Configuration files and environment variables
+.env
+*.ini
+*.cfg
+config.json
+settings.yaml
+
+# Editor and IDE files
+.vscode/
+.idea/
+.ipynb_checkpoints/
+*.sublime-project
