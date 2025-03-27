@@ -1,8 +1,9 @@
 from server.server import HTTPServer
 import handlers
+import config
 
 if __name__ == "__main__":
-    server = HTTPServer()
+    server = HTTPServer(host=config.HOST, port=config.PORT)
     server.router.add_route("/", handlers.HomeHandler)
     server.router.add_route("/about", handlers.AboutHandler)
     server.router.add_route("/auth", handlers.AuthHandler)

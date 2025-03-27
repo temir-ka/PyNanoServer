@@ -1,3 +1,4 @@
+import config
 from server import utils 
 
 class BaseHandler:
@@ -15,7 +16,7 @@ class BaseHandler:
             "Server": self.server_name,
             "Date": utils.get_current_date(),
             "Content-Type": "text/html",
-            "Cash-Control": "no store",
+            "Cash-Control": "no-store",
             "Content-Length": str(content_length),
         }
 
@@ -55,57 +56,54 @@ class BaseHandler:
     
 class HomeHandler(BaseHandler):
     def handle(self):
-        session_id = self.headers["Cookie"].split("=")[1]
+        cookie_header = self.headers.get("Cookie", "")
+        session_id = cookie_header.split("=")[1] if "=" in cookie_header else None
+
         if self.session_manager.get_user(session_id):
-            content = utils.load_static_file("templates/dashboard.html")
-            if content:
-                return self.generate_200(content)
-            else:
-                return self.generate_404()
+            content = utils.load_static_file(f"{config.TEMPLATE_DIR}/dashboard.html")
+            return self.generate_200(content) if content else self.generate_404()
         else:
-            content = utils.load_static_file("templates/home.html")
-            if content:
-                return self.generate_200(content)
-            else:
-                return self.generate_404()
+            content = utils.load_static_file(f"{config.TEMPLATE_DIR}/home.html")
+            return self.generate_200(content) if content else self.generate_404()
 
 class AboutHandler(BaseHandler):
     def handle(self):
-        content = utils.load_static_file("templates/about.html")
-        if content:
-            return self.generate_200(content)
-        else:
-            return self.generate_404()
+        content = utils.load_static_file(f"{config.TEMPLATE_DIR}/about.html")
+        return self.generate_200(content) if content else self.generate_404()
 
 class AuthHandler(BaseHandler):
     def handle(self):
-        if self.headers["Path"] == "/auth":
-            content = utils.load_static_file("templates/auth.html")
-            if content:
-                return self.generate_200(content)
-            else:
-                return self.generate_404()
-        elif self.headers["Path"] == "/auth/login":
-            if self.body.get("username", None) == "krasava" and self.body.get("password", None) == "12345678":
-                session_id = self.session_manager.create_session(self.body["username"])
+        path = self.headers.get("Path", "")
+        
+        if path == "/auth":
+            content = utils.load_static_file(f"{config.TEMPLATE_DIR}/auth.html")
+            return self.generate_200(content) if content else self.generate_404()
+        
+        elif path == "/auth/login":
+            username = self.body.get("username")
+            password = self.body.get("password")
+            if username == "krasava" and password == "12345678":
+                session_id = self.session_manager.create_session(username)
                 return self.generate_302(location="/", session_id=session_id)
             else:
                 return self.generate_302(location="/auth")
-        elif self.headers["Path"] == "/auth/logout":
-            session_id = self.headers["Cookie"].split("=")[1]
+        
+        elif path == "/auth/logout":
+            cookie_header = self.headers.get("Cookie", "")
+            session_id = cookie_header.split("=")[1] if "=" in cookie_header else None
+            
             if self.session_manager.get_user(session_id):
                 self.session_manager.delete_session(session_id)
             return self.generate_302(location="/")
 
 class ProfileHandler(BaseHandler):
     def handle(self):
-        session_id = self.headers["Cookie"].split("=")[1]
+        cookie_header = self.headers.get("Cookie", "")
+        session_id = cookie_header.split("=")[1] if "=" in cookie_header else None
+        
         if self.session_manager.get_user(session_id):
-            content = utils.load_static_file("templates/profile.html")
-            if content:
-                return self.generate_200(content)
-            else:
-                return self.generate_404()
+            content = utils.load_static_file(f"{config.TEMPLATE_DIR}/profile.html")
+            return self.generate_200(content) if content else self.generate_404()
         else: 
             return self.generate_302(location="/")
 
