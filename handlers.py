@@ -1,10 +1,11 @@
 from server import utils 
 
 class BaseHandler:
-    def __init__(self, session_manager, request):
+    def __init__(self, session_manager, headers, body):
         self.server_name = "Socket"
         self.session_manager = session_manager
-        self.request = request
+        self.headers = headers
+        self.body = body
 
     def generate_response(self, status_code, content="", headers=None, session_id=None):
         content_bytes = content.encode()
@@ -54,7 +55,7 @@ class BaseHandler:
     
 class HomeHandler(BaseHandler):
     def handle(self):
-        session_id = self.request["Cookie"].split("=")[1]
+        session_id = self.headers["Cookie"].split("=")[1]
         if self.session_manager.get_user(session_id):
             content = utils.load_static_file("templates/dashboard.html")
             if content:
@@ -78,27 +79,27 @@ class AboutHandler(BaseHandler):
 
 class AuthHandler(BaseHandler):
     def handle(self):
-        if self.request["Request-target"] == "/auth":
+        if self.headers["Path"] == "/auth":
             content = utils.load_static_file("templates/auth.html")
             if content:
                 return self.generate_200(content)
             else:
                 return self.generate_404()
-        elif self.request["Request-target"] == "/auth/login":
-            if self.request.get("username", None) == "krasava" and self.request.get("password", None) == "12345678":
-                session_id = self.session_manager.create_session(self.request["username"])
+        elif self.headers["Path"] == "/auth/login":
+            if self.body.get("username", None) == "krasava" and self.body.get("password", None) == "12345678":
+                session_id = self.session_manager.create_session(self.body["username"])
                 return self.generate_302(location="/", session_id=session_id)
             else:
                 return self.generate_302(location="/auth")
-        elif self.request["Request-target"] == "/auth/logout":
-            session_id = self.request["Cookie"].split("=")[1]
+        elif self.headers["Path"] == "/auth/logout":
+            session_id = self.headers["Cookie"].split("=")[1]
             if self.session_manager.get_user(session_id):
                 self.session_manager.delete_session(session_id)
             return self.generate_302(location="/")
 
 class ProfileHandler(BaseHandler):
     def handle(self):
-        session_id = self.request["Cookie"].split("=")[1]
+        session_id = self.headers["Cookie"].split("=")[1]
         if self.session_manager.get_user(session_id):
             content = utils.load_static_file("templates/profile.html")
             if content:

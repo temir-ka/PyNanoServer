@@ -1,4 +1,4 @@
-
+import urllib.parse
 
 class RequestHandler:
     def __init__(self, request, session_manager, router):
@@ -7,48 +7,41 @@ class RequestHandler:
         self.router = router
 
     def handle_request(self):
-        #request = self.conn.recv(1024).decode("utf-8", errors="replace")
-        #print("Received request: ")
         print(self.request)
-        #print("Recieved request:\n", request)
-        parsed_request = self._parse_request(self.request)
-        route = parsed_request.get("Request-target", None)
+        headers, body = self._parse_request(self.request)
+        route = headers.get("Path", None)
         
         handler = self.router.get_handler(route)
         
-        handler_instance = handler(self.session_manager, parsed_request)
+        handler_instance = handler(self.session_manager, headers, body)
         return handler_instance.handle()
 
-    def _parse_username_password(self, data):
-        pairs = data.split("&")
-        parsed_data = {}
-        for pair in pairs:
-            key, val = pair.split("=")
-            parsed_data[key] = val
-        username = parsed_data.get("username", "")
-        password = parsed_data.get("password", "")
-        return username, password
-
     def _parse_request(self, request):
-        fields = request.split('\n')
+        parts = request.split("\r\n\r\n", 1)
+        headers = self._parse_headers(parts[0])
+        content_length = headers.get("Content-Length", None)
+        body = None
+        if content_length:
+            body = self._parse_body(parts[1], headers.get("Content-Type", None))
+        return headers, body
+    
+    def _parse_headers(self, raw_headers):
+        fields = raw_headers.split("\r\n")
         fields = [x for x in fields if x]
-        req = {}
-        start_line = ['Method', 'Request-target', 'Protocol']
-        for index, val in enumerate(fields[0].split()):
-            req[start_line[index]] = val
-        
+        method, path, version = fields[0].split(" ", 2)
+        headers = {"Method": method, "Path": path, "Version": version}
+            
         for field in fields[1:]:
-            if field == '\r':
-                break
-            elif not field:
+            if not field:
                 continue
             else:
-                key, val = field.split(':', 1)
-                req[key.strip()] = val.strip()
-        
-        if req["Method"] == "POST" and req["Request-target"] == "/auth/login":
-            username, password = self._parse_username_password(fields[-1])
-            req["username"] = username
-            req["password"] = password
+                key, val = field.split(":", 1)
+                headers[key.strip()] = val.strip()
 
-        return req
+        return headers
+    
+    def _parse_body(self, raw_body, content_type):
+        body = None
+        if content_type == "application/x-www-form-urlencoded":
+            body = dict(urllib.parse.parse_qsl(raw_body))
+        return body
