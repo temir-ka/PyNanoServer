@@ -108,3 +108,7 @@ class ProfileHandler(BaseHandler):
                 return self.generate_404()
         else: 
             return self.generate_302(location="/")
+
+class DefaultHandler(BaseHandler):
+    def handle(self):
+        return self.generate_404()

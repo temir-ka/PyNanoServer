@@ -9,6 +9,7 @@ if __name__ == "__main__":
     server.router.add_route("/auth/login", handlers.AuthHandler)
     server.router.add_route("/auth/logout", handlers.AuthHandler)
     server.router.add_route("/profile", handlers.ProfileHandler)
+    server.router.establish_default_handler(handlers.DefaultHandler)
     server.run()
 
 

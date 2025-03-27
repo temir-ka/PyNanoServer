@@ -7,12 +7,10 @@ class RequestHandler:
         self.router = router
 
     def handle_request(self):
-        print(self.request)
         headers, body = self._parse_request(self.request)
         route = headers.get("Path", None)
         
         handler = self.router.get_handler(route)
-        
         handler_instance = handler(self.session_manager, headers, body)
         return handler_instance.handle()
 
