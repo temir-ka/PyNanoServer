@@ -105,7 +105,7 @@ class ProfileHandler(BaseHandler):
             content = utils.load_static_file(f"{config.TEMPLATE_DIR}/profile.html")
             return self.generate_200(content) if content else self.generate_404()
         else: 
-            return self.generate_302(location="/")
+            return self.generate_302(location="/auth")
 
 class DefaultHandler(BaseHandler):
     def handle(self):
