@@ -17,7 +17,7 @@ class RequestHandler:
     def _parse_request(self, request):
         parts = request.split("\r\n\r\n", 1)
         headers = self._parse_headers(parts[0])
-        content_length = headers.get("Content-Length", None)
+        content_length = int(headers.get("Content-Length", 0))
         body = None
         if content_length:
             body = self._parse_body(parts[1], headers.get("Content-Type", None))

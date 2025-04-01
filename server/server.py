@@ -14,22 +14,22 @@ class HTTPServer:
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((self.host, self.port))
         self.server_socket.listen()
-        print(f"Listening on {self.host}:{self.port}")
+        #print(f"Listening on {self.host}:{self.port}")
         
         while True:
-            print("Waiting for connection...")
+            #print("Waiting for connection...")
             conn, addr = self.server_socket.accept()
-            print(f"Connected by {addr}")
+            #print(f"Connected by {addr}")
 
-            print(f"Recieving request...")
+            #print(f"Recieving request...")
             request = conn.recv(1024).decode("utf-8", errors="replace")
             
             handler = RequestHandler(request, self.session_manager, self.router)
             
-            print("Handling request...")
+            #print("Handling request...")
             response = handler.handle_request()   
-            print("Request handled!")
+            #print("Request handled!")
             conn.sendall(response)
 
             conn.close()
-            print("Connection closed.")
+            #print("Connection closed.")
