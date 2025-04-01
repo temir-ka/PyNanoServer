@@ -1,4 +1,3 @@
-import config
 from server.response import Response
 
 class HomeHandler(Response):

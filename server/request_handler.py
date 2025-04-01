@@ -1,17 +1,18 @@
 import urllib.parse
 
 class RequestHandler:
-    def __init__(self, request, session_manager, router):
+    def __init__(self, request, session_manager, router, config):
         self.request = request
         self.session_manager = session_manager
         self.router = router
+        self.config = config
 
     def handle_request(self):
         headers, body = self._parse_request(self.request)
         route = headers.get("Path", None)
         
         handler = self.router.get_handler(route)
-        handler_instance = handler(self.session_manager, headers, body)
+        handler_instance = handler(self.session_manager, self.config, headers, body)
         return handler_instance.handle()
 
     def _parse_request(self, request):

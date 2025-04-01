@@ -3,7 +3,8 @@ import handlers
 import config
 
 if __name__ == "__main__":
-    server = HTTPServer(host=config.HOST, port=config.PORT)
+    server = HTTPServer()
+    server.load_config_from_pyfile("config.py")
     server.router.add_route("/", handlers.HomeHandler)
     server.router.add_route("/about", handlers.AboutHandler)
     server.router.add_route("/auth", handlers.AuthHandler)

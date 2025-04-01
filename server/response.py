@@ -1,8 +1,7 @@
 from . import utils
-import config
 
 class Response:
-    def __init__(self, session_manager=None, headers=None, body=None):
+    def __init__(self, session_manager, config, headers=None, body=None):
         self.response_headers = {
             "Server": "Socket",
             "Date": lambda: utils.get_current_date(),
@@ -11,6 +10,7 @@ class Response:
             "Content-Length": "0",
         }
         self.session_manager = session_manager
+        self.config = config
         self.request_headers = headers
         self.request_body = body
 
@@ -61,10 +61,10 @@ class Response:
 
     def render_template(self, file_name):
         try:
-            with open(f"{config.TEMPLATE_DIR}/{file_name}") as file:
+            with open(f"{self.config['TEMPLATE_DIR']}/{file_name}") as file:
                 content = file.read()
         except FileNotFoundError:
-            raise FileNotFoundError(f"Template '{file_name}' not found in {config.TEMPLATE_DIR}")
+            raise FileNotFoundError(f"Template '{file_name}' not found in {self.config['TEMPLATE_DIR']}")
 
         return self.generate_response(200, content)
 
