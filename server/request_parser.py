@@ -1,6 +1,6 @@
 import urllib
 
-def parse_request(self, request):
+def parse_request(request):
     parts = request.split("\r\n\r\n", 1)
     headers = parse_headers(parts[0])
     content_length = int(headers.get("Content-Length", 0))
@@ -9,7 +9,7 @@ def parse_request(self, request):
         body = parse_body(parts[1], headers.get("Content-Type", None))
     return headers, body
     
-def parse_headers(self, raw_headers):
+def parse_headers(raw_headers):
     fields = raw_headers.split("\r\n")
     fields = [x for x in fields if x]
     method, path, version = fields[0].split(" ", 2)
@@ -24,7 +24,7 @@ def parse_headers(self, raw_headers):
 
     return headers
     
-def parse_body(self, raw_body, content_type):
+def parse_body(raw_body, content_type):
     body = None
     if content_type == "application/x-www-form-urlencoded":
         body = dict(urllib.parse.parse_qsl(raw_body))
