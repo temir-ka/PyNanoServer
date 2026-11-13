@@ -18,7 +18,7 @@ class AuthHandler(Response):
             if path == "/auth/login":
                 username = self.request_body.get("username", None)
                 password = self.request_body.get("password", None)
-                if username == "krasava" and password == "12345678":
+                if username == self.config["DEMO_USER"] and password == self.config["DEMO_PASSWORD"]:
                     self.set_cookie_session(username)
                     return self.redirect(url="/")
                 else:

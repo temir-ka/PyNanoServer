@@ -6,7 +6,7 @@ class Response:
             "Server": "Socket",
             "Date": lambda: utils.get_current_date(),
             "Content-Type": "text/html",
-            "Cash-Control": "no-store",
+            "Cache-Control": "no-store",
             "Content-Length": "0",
         }
         self.session_manager = session_manager
@@ -42,8 +42,11 @@ class Response:
 
     def get_cookie_session(self):
         cookie = self.request_headers.get("Cookie", "")
-        session_id = cookie.split("=")[1] if "=" in cookie else None
-        return session_id
+        for part in cookie.split(";"):
+            name, _, value = part.strip().partition("=")
+            if name == "session_id":
+                return value
+        return None
     
     def is_authenticated(self):
         session_id = self.get_cookie_session()

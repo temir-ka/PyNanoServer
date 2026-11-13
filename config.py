@@ -1,4 +1,9 @@
 # config.py
+import os
+
+# Demo user for authorization
+DEMO_USER = os.environ.get("DEMO_USER", "demo")
+DEMO_PASSWORD = os.environ.get("DEMO_PASSWORD", "demo")
 
 # Basic server settings
 HOST = "127.0.0.1"
